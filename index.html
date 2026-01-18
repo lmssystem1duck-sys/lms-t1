@@ -245,7 +245,7 @@
                     <i class="fas fa-calendar-alt text-indigo-600"></i> මාසික පාඩම් (Monthly Lessons)
                 </h3>
                 <div id="monthly-lessons-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="col-span-full flex justify-center py-4 text-slate-400 text-sm italic">මෙහි අන්තර්ගතයන් ලබා ගැනීමට ඔබේ ශ්‍රේණිය තෝරන්න.</div>
+                    <div class="col-span-full flex justify-center py-4 text-slate-400 text-sm italic">දත්ත ලබා ගනිමින් පවතී...</div>
                 </div>
             </section>
 
@@ -456,10 +456,10 @@
                             <div class="glass-card p-6 md:p-10 shadow-lg border border-slate-100">
                                 <h4 class="font-black text-slate-900 mb-6 flex items-center gap-3 text-lg">
                                     <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-xs"><i class="fas fa-play"></i></div>
-                                    ${l.name}
+                                    ${l.name || l.title || 'Untitled Lesson'}
                                 </h4>
-                                ${generateSecurePlayer(l.youtubeUrl)}
-                                ${l.description ? `<div class="mt-6 text-slate-500 text-sm bg-slate-50 p-5 rounded-2xl border-l-4 border-blue-400 italic">${l.description}</div>` : ''}
+                                ${generateSecurePlayer(l.youtubeUrl || l.videoUrl || l.url)}
+                                ${(l.description || l.desc) ? `<div class="mt-6 text-slate-500 text-sm bg-slate-50 p-5 rounded-2xl border-l-4 border-blue-400 italic">${l.description || l.desc}</div>` : ''}
                             </div>`;
                     });
                 } else {
@@ -486,12 +486,12 @@
                             <div class="glass-card p-8 border-l-8 border-red-500 shadow-sm flex flex-col justify-between">
                                 <div>
                                     <div class="flex justify-between items-start mb-4">
-                                        <h4 class="font-bold text-slate-900 text-lg">${data[k].name}</h4>
+                                        <h4 class="font-bold text-slate-900 text-lg">${data[k].name || data[k].title}</h4>
                                         <span class="bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-full animate-pulse">LIVE NOW</span>
                                     </div>
-                                    <p class="text-slate-500 text-sm mb-6 leading-relaxed">${data[k].description || ''}</p>
+                                    <p class="text-slate-500 text-sm mb-6 leading-relaxed">${data[k].description || data[k].desc || ''}</p>
                                 </div>
-                                <a href="${data[k].link}" target="_blank" class="w-full bg-red-600 text-white py-4 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-red-700 transition">
+                                <a href="${data[k].link || data[k].url}" target="_blank" class="w-full bg-red-600 text-white py-4 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-red-700 transition">
                                     <i class="fas fa-video"></i> පන්තියට සම්බන්ධ වන්න
                                 </a>
                             </div>`;
@@ -505,12 +505,15 @@
                 const data = snap.val();
                 const cont = document.getElementById('monthly-lessons-list');
                 if(!cont) return;
+                cont.innerHTML = '';
                 if(data) {
-                    cont.innerHTML = '';
                     Object.keys(data).forEach(k => {
                         const lesson = data[k];
-                        // Security: Filter by Student Grade if available
-                        if (currentUser && currentUser.grade && lesson.grade && currentUser.grade !== lesson.grade && currentUser.classId !== "1") {
+                        // Handling Grade filtering
+                        const lessonGrade = lesson.grade ? lesson.grade.toString() : '';
+                        const studentGrade = currentUser && currentUser.grade ? currentUser.grade.toString() : '';
+                        
+                        if (currentUser && currentUser.classId !== "1" && studentGrade && lessonGrade && studentGrade !== lessonGrade) {
                             return; 
                         }
 
@@ -518,12 +521,12 @@
                             <div class="glass-card p-8 shadow-sm flex flex-col justify-between border-b-8 border-indigo-500">
                                 <div>
                                     <div class="flex justify-between items-start mb-2">
-                                        <h4 class="font-bold text-slate-900 text-lg">${lesson.name}</h4>
-                                        ${lesson.grade ? `<span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-1 rounded">Grade ${lesson.grade}</span>` : ''}
+                                        <h4 class="font-bold text-slate-900 text-lg">${lesson.name || lesson.title || 'Untitled'}</h4>
+                                        ${lessonGrade ? `<span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-1 rounded">Grade ${lessonGrade}</span>` : ''}
                                     </div>
-                                    <p class="text-slate-500 text-sm mb-6 leading-relaxed">${lesson.description || ''}</p>
+                                    <p class="text-slate-500 text-sm mb-6 leading-relaxed">${lesson.description || lesson.desc || ''}</p>
                                 </div>
-                                <button onclick="window.fetchLessons('${k}', '${lesson.name}')" class="w-full bg-indigo-600 text-white py-4 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-indigo-700 transition">
+                                <button onclick="window.fetchLessons('${k}', '${lesson.name || lesson.title}')" class="w-full bg-indigo-600 text-white py-4 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-indigo-700 transition">
                                     <i class="fas fa-book-open"></i> පාඩම නරඹන්න
                                 </button>
                             </div>`;
@@ -549,20 +552,19 @@
                         const isRequested = currentUser && currentUser.requests && currentUser.requests[k];
 
                         let btnHtml = '';
-                        // Special Access for ID 1 (Student) or Unlocked Packs
                         if(isUnlocked || (currentUser && currentUser.classId === "1")) {
-                            btnHtml = `<button onclick="window.fetchLessons('${k}', '${data[k].name}')" class="w-full vibrant-btn text-white py-4 rounded-2xl text-sm font-bold shadow-xl flex items-center justify-center gap-2"><i class="fas fa-play-circle"></i> වීඩියෝ නරඹන්න</button>`;
+                            btnHtml = `<button onclick="window.fetchLessons('${k}', '${data[k].name || data[k].title}')" class="w-full vibrant-btn text-white py-4 rounded-2xl text-sm font-bold shadow-xl flex items-center justify-center gap-2"><i class="fas fa-play-circle"></i> වීඩියෝ නරඹන්න</button>`;
                         } else if(isRequested) {
                             btnHtml = `<button disabled class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 cursor-not-allowed"><i class="fas fa-hourglass-half"></i> අනුමැතිය ලැබෙන තෙක්...</button>`;
                         } else {
-                            btnHtml = `<button onclick="window.requestPack('${k}', '${data[k].name}')" class="w-full bg-slate-900 text-white py-4 rounded-2xl text-sm font-bold shadow-xl flex items-center justify-center gap-2 hover:bg-slate-800 transition"><i class="fas fa-lock"></i> Request Access</button>`;
+                            btnHtml = `<button onclick="window.requestPack('${k}', '${data[k].name || data[k].title}')" class="w-full bg-slate-900 text-white py-4 rounded-2xl text-sm font-bold shadow-xl flex items-center justify-center gap-2 hover:bg-slate-800 transition"><i class="fas fa-lock"></i> Request Access</button>`;
                         }
 
                         cont.innerHTML += `
                             <div class="glass-card p-8 shadow-sm flex flex-col justify-between border-b-8 ${isUnlocked ? 'border-green-500' : 'border-blue-600'}">
                                 <div>
-                                    <h4 class="font-black text-slate-900 text-lg mb-3 tracking-tight">${data[k].name}</h4>
-                                    <p class="text-blue-700 font-black text-2xl mb-8">LKR ${data[k].price}</p>
+                                    <h4 class="font-black text-slate-900 text-lg mb-3 tracking-tight">${data[k].name || data[k].title}</h4>
+                                    <p class="text-blue-700 font-black text-2xl mb-8">LKR ${data[k].price || '0'}</p>
                                 </div>
                                 ${btnHtml}
                             </div>`;
