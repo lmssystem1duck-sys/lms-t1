@@ -328,24 +328,27 @@
         };
 
         function generateSecurePlayer(url) {
-            if (!url) return '';
+            if (!url || url === "") return '<div class="p-6 text-center text-red-500 font-bold bg-white rounded-2xl shadow-sm">වීඩියෝව සොයාගත නොහැකි විය. (URL Error)</div>';
             const containerId = "cont-" + Math.random().toString(36).substr(2, 9);
             const wmId = "wm-" + Math.random().toString(36).substr(2, 9);
             let player = '';
-            if (url.includes('drive.google.com')) {
-                let id = url.includes('/d/') ? url.split('/d/')[1].split('/')[0] : url.split('id=')[1].split('&')[0];
+            
+            // Link clean up
+            const cleanUrl = url.trim();
+
+            if (cleanUrl.includes('drive.google.com')) {
+                let id = cleanUrl.includes('/d/') ? cleanUrl.split('/d/')[1].split('/')[0] : cleanUrl.split('id=')[1].split('&')[0];
                 player = `<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay"></iframe>`;
-            } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                let id = url.split('v=')[1] || url.split('/').pop(); if(id.includes('&')) id = id.split('&')[0];
+            } else if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+                let id = cleanUrl.split('v=')[1] || cleanUrl.split('/').pop(); if(id.includes('&')) id = id.split('&')[0];
                 player = `<iframe src="https://www.youtube.com/embed/${id}?modestbranding=1&rel=0" allowfullscreen></iframe>`;
-            } else { player = `<video controls controlsList="nodownload"><source src="${url}" type="video/mp4"></video>`; }
+            } else { player = `<video controls controlsList="nodownload"><source src="${cleanUrl}" type="video/mp4"></video>`; }
             
             setTimeout(() => { const wm = document.getElementById(wmId); if(wm) { updateWatermark(wm); setInterval(() => updateWatermark(wm), 7000); }}, 1000);
 
             return `<div id="${containerId}" class="video-container">${player}<div class="video-shield-restricted"></div><div id="${wmId}" class="dynamic-watermark">Loading...</div><button class="fs-overlay-btn" onclick="toggleFullScreen('${containerId}')"><i class="fas fa-expand"></i> Full Screen</button></div>`;
         }
 
-        // --- NEW Logic for Monthly Lessons (Grouped by Month) ---
         function fetchMonthlyMonths() {
             onValue(ref(db, `artifacts/${appId}/public/data/monthly_lessons`), (snap) => {
                 const data = snap.val();
@@ -356,7 +359,8 @@
                     const months = {};
                     Object.keys(data).forEach(k => {
                         const lesson = data[k];
-                        const month = lesson.name || lesson.title || "Other";
+                        // Robust month naming logic
+                        let month = (lesson.name || lesson.title || "Study Content").trim();
                         if(!months[month]) months[month] = [];
                         months[month].push({ id: k, ...lesson });
                     });
@@ -371,6 +375,8 @@
                                 <div class="mt-4 text-indigo-600 font-bold text-sm">නරඹන්න <i class="fas fa-chevron-right ml-1"></i></div>
                             </div>`;
                     });
+                } else {
+                    cont.innerHTML = '<p class="col-span-full text-center text-slate-400 py-6">No Monthly Lessons Available</p>';
                 }
             });
         }
@@ -378,7 +384,13 @@
         window.showMonthLessons = (monthName) => {
             get(ref(db, `artifacts/${appId}/public/data/monthly_lessons`)).then(snap => {
                 const data = snap.val();
-                const filtered = Object.values(data).filter(l => (l.name || l.title) === monthName);
+                if(!data) return;
+                
+                // Flexible filter that ignores case and leading/trailing spaces
+                const filtered = Object.values(data).filter(l => {
+                    const lName = (l.name || l.title || "Study Content").trim().toLowerCase();
+                    return lName === monthName.trim().toLowerCase();
+                });
                 
                 mainContent.classList.add('hidden');
                 document.getElementById('lessons-page-view').classList.remove('hidden');
@@ -386,54 +398,89 @@
                 const grid = document.getElementById('lessons-grid');
                 grid.innerHTML = '';
 
-                filtered.forEach(l => {
-                    grid.innerHTML += `
-                        <div class="glass-card p-6 md:p-10 shadow-lg">
-                            <h4 class="font-bold text-slate-900 mb-6">${l.description || l.desc || 'Lesson Video'}</h4>
-                            ${generateSecurePlayer(l.youtubeUrl || l.videoUrl || l.url)}
-                        </div>`;
-                });
+                if (filtered.length > 0) {
+                    filtered.forEach(l => {
+                        // Look for video link in multiple possible field names
+                        const videoUrl = l.url || l.videoUrl || l.youtubeUrl || l.link || "";
+                        grid.innerHTML += `
+                            <div class="glass-card p-6 md:p-10 shadow-lg">
+                                <h4 class="font-bold text-slate-900 mb-6">${l.description || l.desc || l.name || 'Lesson Video'}</h4>
+                                ${generateSecurePlayer(videoUrl)}
+                            </div>`;
+                    });
+                } else {
+                    grid.innerHTML = '<div class="p-10 text-center text-slate-500 font-bold bg-white rounded-3xl shadow-sm">මෙම මාසයට අදාළ දත්ත වල දෝෂයක් පවතී.</div>';
+                }
             });
         };
 
-        window.closeLessons = () => { document.getElementById('lessons-page-view').classList.add('hidden'); mainContent.classList.remove('hidden'); };
+        window.closeLessons = () => { 
+            document.getElementById('lessons-page-view').classList.add('hidden'); 
+            mainContent.classList.remove('hidden'); 
+        };
 
         function fetchStudyPacks() {
             onValue(ref(db, `artifacts/${appId}/public/data/study_packs`), (snap) => {
                 const data = snap.val();
                 const cont = document.getElementById('student-packs-list');
-                if(!cont || !data) return;
+                if(!cont) return;
                 cont.innerHTML = '';
-                Object.keys(data).forEach(k => {
-                    const isUnlocked = currentUser?.unlockedPacks?.[k];
-                    cont.innerHTML += `
-                        <div class="glass-card p-8 shadow-sm border-b-8 ${isUnlocked ? 'border-green-500' : 'border-blue-600'}">
-                            <h4 class="font-black text-slate-900 text-lg mb-3">${data[k].name || data[k].title}</h4>
-                            <p class="text-blue-700 font-black text-2xl mb-8">LKR ${data[k].price || '0'}</p>
-                            <button onclick="window.fetchLessons('${k}', '${data[k].name}')" class="w-full vibrant-btn text-white py-4 rounded-2xl text-sm font-bold">නරඹන්න</button>
-                        </div>`;
-                });
+                if(data) {
+                    Object.keys(data).forEach(k => {
+                        const isUnlocked = currentUser?.unlockedPacks?.[k];
+                        cont.innerHTML += `
+                            <div class="glass-card p-8 shadow-sm border-b-8 ${isUnlocked ? 'border-green-500' : 'border-blue-600'}">
+                                <h4 class="font-black text-slate-900 text-lg mb-3">${data[k].name || data[k].title}</h4>
+                                <p class="text-blue-700 font-black text-2xl mb-8">LKR ${data[k].price || '0'}</p>
+                                <button onclick="window.fetchLessons('${k}', '${data[k].name || data[k].title}')" class="w-full vibrant-btn text-white py-4 rounded-2xl text-sm font-bold">නරඹන්න</button>
+                            </div>`;
+                    });
+                } else {
+                    cont.innerHTML = '<p class="col-span-full text-center text-slate-400 py-6">No Study Packs Found</p>';
+                }
             });
         }
 
         window.fetchLessons = (id, name) => {
-            mainContent.classList.add('hidden'); document.getElementById('lessons-page-view').classList.remove('hidden');
+            mainContent.classList.add('hidden'); 
+            document.getElementById('lessons-page-view').classList.remove('hidden');
             document.getElementById('selected-pack-name').innerText = name;
+            const grid = document.getElementById('lessons-grid'); 
+            grid.innerHTML = '<div class="col-span-full flex justify-center py-10"><div class="loader"></div></div>';
+            
             onValue(ref(db, `artifacts/${appId}/public/data/lessons/${id}`), (snap) => {
-                const data = snap.val(); const grid = document.getElementById('lessons-grid'); grid.innerHTML = '';
-                if(data) Object.values(data).forEach(l => {
-                    grid.innerHTML += `<div class="glass-card p-6 md:p-10 shadow-lg"><h4 class="font-bold text-slate-900 mb-6">${l.name || l.title}</h4>${generateSecurePlayer(l.url || l.videoUrl)}</div>`;
-                });
+                const data = snap.val(); 
+                grid.innerHTML = '';
+                if(data) {
+                    Object.values(data).forEach(l => {
+                        const vUrl = l.url || l.videoUrl || l.youtubeUrl || l.link || "";
+                        grid.innerHTML += `
+                            <div class="glass-card p-6 md:p-10 shadow-lg">
+                                <h4 class="font-bold text-slate-900 mb-6">${l.name || l.title}</h4>
+                                ${generateSecurePlayer(vUrl)}
+                            </div>`;
+                    });
+                } else {
+                    grid.innerHTML = '<div class="p-10 text-center text-slate-500 font-bold bg-white rounded-3xl shadow-sm">මෙම පාඩම් මාලාවට වීඩියෝ තවමත් ඇතුළත් කර නොමැත.</div>';
+                }
             });
         };
 
         function fetchOnlineClasses() {
             onValue(ref(db, `artifacts/${appId}/public/data/online_classes`), (snap) => {
-                const data = snap.val(); const cont = document.getElementById('online-classes-list'); if(!cont) return;
+                const data = snap.val(); 
+                const cont = document.getElementById('online-classes-list'); 
+                if(!cont) return;
                 cont.innerHTML = '';
-                if(data) Object.keys(data).forEach(k => {
-                    cont.innerHTML += `<div class="glass-card p-8 border-l-8 border-red-500"><h4 class="font-bold text-lg">${data[k].name}</h4><a href="${data[k].link}" target="_blank" class="block mt-4 bg-red-600 text-white py-3 rounded-xl text-center text-sm font-bold">සම්බන්ධ වන්න</a></div>`;
-                });
+                if(data) {
+                    Object.keys(data).forEach(k => {
+                        cont.innerHTML += `
+                            <div class="glass-card p-8 border-l-8 border-red-500">
+                                <h4 class="font-bold text-lg">${data[k].name}</h4>
+                                <a href="${data[k].link}" target="_blank" class="block mt-4 bg-red-600 text-white py-3 rounded-xl text-center text-sm font-bold">සම්බන්ධ වන්න</a>
+                            </div>`;
+                    });
+                }
             });
         }
     </script>
