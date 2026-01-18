@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Student Portal - Personal Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans Sinhala', sans-serif; background: #f1f5f9; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .lesson-card:hover { transform: translateY(-5px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .active-nav { background: #2563eb; color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 16px; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800">
+
+    <!-- Login Section -->
+    <div id="login-section" class="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl text-center">
+            <div class="w-20 h-20 bg-blue-600 rounded-2xl mx-auto mb-6 flex items-center justify-center text-white text-3xl shadow-xl">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1 class="text-3xl font-black mb-2 text-slate-900 tracking-tight">Welcome Back!</h1>
+            <p class="text-slate-500 mb-8 font-medium">Please enter your Student ID to continue</p>
+            <div class="space-y-4">
+                <div class="relative">
+                    <span class="absolute left-5 top-1/2 -translate-y-1/2 text-blue-600 font-bold">MG-</span>
+                    <input type="text" id="login-id" placeholder="ID Number" class="w-full pl-16 pr-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all font-mono text-lg">
+                </div>
+                <input type="password" id="login-pw" placeholder="Password" class="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-blue-500 transition-all text-lg">
+                <button id="login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-blue-200 transition-all transform active:scale-95">Sign In Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Shell (Hidden Initially) -->
+    <div id="app-shell" class="hidden pb-24">
+        <!-- Header -->
+        <header class="glass sticky top-0 z-50 border-b border-slate-200/50">
+            <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-black text-xl tracking-tight text-slate-900">STUDENT <span class="text-blue-600">PORTAL</span></h2>
+                        <p id="student-welcome" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"></p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div id="live-indicator" class="hidden items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-full border border-red-100 animate-pulse cursor-pointer">
+                        <span class="w-2 h-2 bg-red-600 rounded-full"></span>
+                        <span class="text-xs font-bold uppercase tracking-wider">Live Now</span>
+                    </div>
+                    <button onclick="logout()" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-red-50 hover:text-red-600 transition-all">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Content -->
+        <main class="max-w-7xl mx-auto px-6 py-10">
+            <!-- Study Packs Section -->
+            <section id="sec-studypacks" class="section-tab">
+                <h3 class="text-2xl font-black text-slate-900 mb-8 flex items-center gap-3">
+                    <i class="fas fa-layer-group text-blue-600"></i> Study Packs <span class="text-sm font-medium text-slate-400 bg-slate-100 px-3 py-1 rounded-full">All Grades</span>
+                </h3>
+                <div id="studypacks-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </section>
+
+            <!-- Monthly Lessons Section -->
+            <section id="sec-monthly" class="section-tab hidden">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-2xl font-black text-slate-900 flex items-center gap-3">
+                        <i class="fas fa-calendar-check text-orange-500"></i> මාසික පාඩම් මාලා
+                    </h3>
+                    <span id="student-grade-badge" class="bg-orange-100 text-orange-700 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border border-orange-200">Grade Filtered</span>
+                </div>
+                <div id="monthly-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </section>
+
+            <!-- Video Player Section -->
+            <section id="sec-player" class="section-tab hidden">
+                <button onclick="backToPacks()" class="flex items-center gap-2 text-blue-600 font-bold mb-6 hover:gap-4 transition-all">
+                    <i class="fas fa-arrow-left"></i> Back to Lessons
+                </button>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div class="lg:col-span-2 space-y-6">
+                        <div id="main-player" class="video-container shadow-2xl"></div>
+                        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                            <h2 id="video-title" class="text-2xl font-black text-slate-900 mb-3">Lesson Title</h2>
+                            <p id="video-desc" class="text-slate-500 leading-relaxed font-medium">Description goes here...</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest ml-2">Next Lessons</h4>
+                        <div id="playlist" class="space-y-3"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 glass px-4 py-3 rounded-[2rem] shadow-2xl border border-white/50 flex gap-2 z-[100]">
+            <button onclick="tab('studypacks')" id="btn-studypacks" class="flex items-center gap-3 px-6 py-3 rounded-2xl font-bold transition-all active-nav">
+                <i class="fas fa-th-large"></i> <span class="text-sm">Study Packs</span>
+            </button>
+            <button onclick="tab('monthly')" id="btn-monthly" class="flex items-center gap-3 px-6 py-3 rounded-2xl font-bold transition-all text-slate-500">
+                <i class="fas fa-calendar"></i> <span class="text-sm">Monthly</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Payment Request Modal -->
+    <div id="payment-modal" class="hidden fixed inset-0 z-[300] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl text-center">
+            <div class="w-20 h-20 bg-orange-100 text-orange-600 rounded-3xl mx-auto mb-6 flex items-center justify-center text-3xl">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="text-2xl font-black mb-2 text-slate-900">Access Restricted</h3>
+            <p id="lock-msg" class="text-slate-500 mb-8 font-medium">මෙම පාඩම් මාලාව නැරඹීමට ඔබට අවසර නැත. කරුණාකර ප්‍රවේශය ඉල්ලුම් කරන්න.</p>
+            <div class="space-y-3">
+                <button id="req-btn" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:bg-blue-700 transition-all">Send Access Request</button>
+                <button onclick="closePayment()" class="w-full bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold transition-all">Maybe Later</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDUvR4OkKz0IQju7dRGju6uDnEYdeyVe3g", 
+            authDomain: "malinda-lms.firebaseapp.com", 
+            databaseURL: "https://malinda-lms-default-rtdb.firebaseio.com", 
+            projectId: "malinda-lms", 
+            storageBucket: "malinda-lms.firebasestorage.app", 
+            appId: "1:668911175736:web:01b3732c6313e696603ecd" 
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const appId = "malinda-lms";
+
+        let studentData = null;
+        let studentKey = null;
+        let currentPackId = null;
+        let currentType = null;
+        let globalLessons = {};
+        let globalMonthly = {};
+
+        // --- Auth Logic ---
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const id = document.getElementById('login-id').value;
+            const pw = document.getElementById('login-pw').value;
+            
+            onValue(ref(db, `artifacts/${appId}/public/data/students`), snap => {
+                const students = snap.val();
+                let found = false;
+                for(let k in students) {
+                    if(students[k].classId === "MG-"+id && students[k].password === pw) {
+                        studentKey = k;
+                        studentData = students[k];
+                        found = true;
+                        initApp();
+                        break;
+                    }
+                }
+                if(!found) alert('වැරදි ID එකක් හෝ මුරපදයක් (Incorrect Credentials)');
+            }, { onlyOnce: true });
+        });
+
+        function initApp() {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('app-shell').classList.remove('hidden');
+            document.getElementById('student-welcome').innerText = `${studentData.name} • ID: ${studentData.classId}`;
+            document.getElementById('student-grade-badge').innerText = `Grade ${studentData.grade || 'N/A'}`;
+            
+            loadData();
+            checkLive();
+        }
+
+        window.logout = () => location.reload();
+
+        // --- Data Loading ---
+        function loadData() {
+            // Load Study Packs (No Grade Filter)
+            onValue(ref(db, `artifacts/${appId}/public/data/study_packs`), snap => {
+                const packs = snap.val() || {};
+                const grid = document.getElementById('studypacks-grid');
+                grid.innerHTML = '';
+                Object.keys(packs).forEach(k => {
+                    const isUnlocked = studentData.unlockedPacks?.[k]?.enabled;
+                    const expiry = studentData.unlockedPacks?.[k]?.expiryDate;
+                    const isExpired = expiry && new Date(expiry) < new Date();
+
+                    grid.innerHTML += `
+                    <div class="lesson-card glass p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            ${isUnlocked && !isExpired ? '<span class="bg-green-100 text-green-700 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter border border-green-200">Unlocked</span>' : ''}
+                        </div>
+                        <h4 class="text-xl font-black text-slate-800 mb-2 leading-tight">${packs[k].name}</h4>
+                        <p class="text-slate-400 text-sm font-bold mb-6">Price: LKR ${packs[k].price}</p>
+                        ${isUnlocked && !isExpired ? 
+                            `<button onclick="openPack('${k}', 'lessons')" class="mt-auto w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-blue-600 transition-all">Start Learning <i class="fas fa-arrow-right text-xs"></i></button>` : 
+                            `<button onclick="requestAccess('${k}', '${packs[k].name}')" class="mt-auto w-full bg-white border-2 border-slate-100 text-slate-600 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:border-blue-500 hover:text-blue-600 transition-all">${isExpired ? 'Renew Access' : 'Buy Now'}</button>`
+                        }
+                    </div>`;
+                });
+            });
+
+            // Load Monthly Lessons (GRADE FILTER APPLIED)
+            onValue(ref(db, `artifacts/${appId}/public/data/monthly_lessons_meta`), snap => {
+                const months = snap.val() || {};
+                const grid = document.getElementById('monthly-grid');
+                grid.innerHTML = '';
+                
+                Object.keys(months).forEach(k => {
+                    const m = months[k];
+                    // --- THE GRADE FILTER LOGIC ---
+                    if(m.grade && studentData.grade && m.grade != studentData.grade) return;
+
+                    const isPaid = studentData.monthlyAccess?.[k]?.isPaid;
+                    const expiry = studentData.monthlyAccess?.[k]?.expiryDate;
+                    const isExpired = expiry && new Date(expiry) < new Date();
+
+                    grid.innerHTML += `
+                    <div class="lesson-card glass p-6 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="w-14 h-14 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center text-xl">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="flex flex-col items-end gap-1">
+                                <span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter border border-orange-200">Grade ${m.grade}</span>
+                                ${isPaid && !isExpired ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter border border-green-200">Paid Access</span>' : ''}
+                            </div>
+                        </div>
+                        <h4 class="text-xl font-black text-slate-800 mb-1 leading-tight">${m.name}</h4>
+                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-6">Full Monthly Lesson Set</p>
+                        ${isPaid && !isExpired ? 
+                            `<button onclick="openPack('${k}', 'monthly_lessons')" class="mt-auto w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-orange-500 transition-all">Explore Lessons <i class="fas fa-play text-[10px]"></i></button>` : 
+                            `<button onclick="showAccessLocked('${m.name}')" class="mt-auto w-full bg-slate-100 text-slate-400 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 cursor-not-allowed">Access Locked <i class="fas fa-lock text-[10px]"></i></button>`
+                        }
+                    </div>`;
+                });
+            });
+        }
+
+        // --- App Logic ---
+        window.tab = (id) => {
+            document.querySelectorAll('.section-tab').forEach(s => s.classList.add('hidden'));
+            document.getElementById('sec-'+id).classList.remove('hidden');
+            
+            document.querySelectorAll('nav button').forEach(b => {
+                b.classList.remove('active-nav');
+                b.classList.add('text-slate-500');
+            });
+            document.getElementById('btn-'+id).classList.add('active-nav');
+            document.getElementById('btn-'+id).classList.remove('text-slate-500');
+        };
+
+        window.openPack = (id, type) => {
+            currentPackId = id;
+            currentType = type;
+            tab('player');
+            document.getElementById('playlist').innerHTML = '<p class="text-slate-400 text-center py-10 font-medium">Loading lessons...</p>';
+            
+            onValue(ref(db, `artifacts/${appId}/public/data/${type}/${id}`), snap => {
+                const lessons = snap.val() || {};
+                const playlist = document.getElementById('playlist');
+                playlist.innerHTML = '';
+                
+                const keys = Object.keys(lessons);
+                if(keys.length === 0) {
+                    playlist.innerHTML = '<p class="text-slate-400 text-center py-10 font-medium">No lessons added yet.</p>';
+                    return;
+                }
+
+                keys.forEach((lk, index) => {
+                    const l = lessons[lk];
+                    playlist.innerHTML += `
+                    <div onclick="playVideo('${lk}', '${l.name}', '${l.youtubeUrl}', '${l.description}')" class="p-4 bg-white border border-slate-100 rounded-2xl cursor-pointer hover:border-blue-500 transition-all group">
+                        <div class="flex gap-4">
+                            <div class="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
+                                ${index + 1}
+                            </div>
+                            <div class="flex-1">
+                                <h5 class="text-sm font-bold text-slate-700 leading-snug group-hover:text-blue-600 transition-all">${l.name}</h5>
+                            </div>
+                        </div>
+                    </div>`;
+                    if(index === 0) playVideo(lk, l.name, l.youtubeUrl, l.description);
+                });
+            });
+        };
+
+        window.playVideo = (id, title, url, desc) => {
+            const player = document.getElementById('main-player');
+            document.getElementById('video-title').innerText = title;
+            document.getElementById('video-desc').innerText = desc || "No description available.";
+            
+            if(url.includes('youtube.com') || url.includes('youtu.be')) {
+                const vidId = url.split('v=')[1] || url.split('/').pop();
+                player.innerHTML = `<iframe src="https://www.youtube.com/embed/${vidId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            } else if(url.includes('drive.google.com')) {
+                const vidId = url.includes('/d/') ? url.split('/d/')[1].split('/')[0] : url.split('id=')[1].split('&')[0];
+                player.innerHTML = `<iframe src="https://drive.google.com/file/d/${vidId}/preview"></iframe>`;
+            } else {
+                player.innerHTML = `<video controls autoplay class="w-full h-full rounded-2xl"><source src="${url}" type="video/mp4"></video>`;
+            }
+        };
+
+        window.requestAccess = (packId, packName) => {
+            document.getElementById('payment-modal').classList.remove('hidden');
+            document.getElementById('req-btn').onclick = () => {
+                set(ref(db, `artifacts/${appId}/public/data/students/${studentKey}/requests/${packId}`), {
+                    packName, requestedAt: serverTimestamp()
+                }).then(() => {
+                    alert('ඉල්ලීම සාර්ථකව යොමු කරන ලදී. Admin විසින් එය පරීක්ෂා කර ඔබට අවසර ලබා දෙනු ඇත.');
+                    closePayment();
+                });
+            };
+        };
+
+        window.showAccessLocked = (name) => {
+            document.getElementById('payment-modal').classList.remove('hidden');
+            document.getElementById('lock-msg').innerText = `${name} පාඩම් මාලාව නැරඹීමට කරුණාකර මාසික ගාස්තු ගෙවා Admin මගින් සක්‍රීය කරවා ගන්න.`;
+            document.getElementById('req-btn').classList.add('hidden');
+        };
+
+        window.closePayment = () => {
+            document.getElementById('payment-modal').classList.add('hidden');
+            document.getElementById('req-btn').classList.remove('hidden');
+        };
+
+        window.backToPacks = () => {
+            tab(currentType === 'lessons' ? 'studypacks' : 'monthly');
+            document.getElementById('main-player').innerHTML = '';
+        };
+
+        function checkLive() {
+            onValue(ref(db, `artifacts/${appId}/public/data/live_class`), snap => {
+                const live = snap.val();
+                const indicator = document.getElementById('live-indicator');
+                if(live && live.url) {
+                    indicator.classList.remove('hidden');
+                    indicator.classList.add('flex');
+                    indicator.onclick = () => window.open(live.url, '_blank');
+                } else {
+                    indicator.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
