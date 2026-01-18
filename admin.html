@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMS Admin Dashboard - Grade Based Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans Sinhala', sans-serif; background: #f8fafc; }
+        .sidebar-item:hover { background: #1e293b; }
+        .active-tab { background: #2563eb !important; color: white; }
+        .preview-box { background: #000; border-radius: 12px; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+        .preview-box iframe, .preview-box video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+        .paid-checkbox, .pack-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: #2563eb; }
+        .quick-btn { font-size: 10px; padding: 2px 6px; border-radius: 6px; background: #e2e8f0; color: #475569; font-weight: bold; transition: all 0.2s; }
+        .quick-btn:hover { background: #cbd5e1; color: #1e293b; }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex">
+    <!-- Sidebar -->
+    <aside class="w-72 bg-slate-900 text-slate-300 flex flex-col shadow-2xl">
+        <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <span class="text-xl font-bold text-white uppercase tracking-wider">Admin Pro</span>
+        </div>
+        <nav class="flex-1 p-4 space-y-2 mt-4">
+            <button onclick="showSection('studypacks')" id="tab-studypacks" class="sidebar-item w-full flex items-center p-3 rounded-xl transition text-left active-tab">
+                <i class="fas fa-layer-group w-8"></i> Study Packs
+            </button>
+            <button onclick="showSection('monthly')" id="tab-monthly" class="sidebar-item w-full flex items-center p-3 rounded-xl transition text-left">
+                <i class="fas fa-calendar-alt w-8"></i> Monthly Lessons
+            </button>
+            <button onclick="showSection('students')" id="tab-students" class="sidebar-item w-full flex items-center p-3 rounded-xl transition text-left">
+                <i class="fas fa-user-graduate w-8"></i> Students
+            </button>
+            <button onclick="showSection('payments')" id="tab-payments" class="sidebar-item w-full flex items-center p-3 rounded-xl transition text-left">
+                <i class="fas fa-credit-card w-8"></i> Payments
+            </button>
+            <button onclick="showSection('liveclasses')" id="tab-liveclasses" class="sidebar-item w-full flex items-center p-3 rounded-xl transition text-left">
+                <i class="fas fa-video w-8"></i> Live Classes
+            </button>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="bg-white shadow-sm h-16 flex items-center justify-between px-8 border-b">
+            <h2 id="page-title" class="text-xl font-bold text-slate-800">කළමනාකරණ පුවරුව</h2>
+        </header>
+
+        <div id="content-container" class="flex-1 overflow-y-auto p-8">
+            <!-- Study Packs Section -->
+            <div id="section-studypacks" class="space-y-6">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold mb-6 text-slate-800">නව Study Pack එකක් එක් කරන්න</h3>
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <input type="text" id="pack-name" placeholder="පාඩම් මාලාවේ නම" class="flex-1 p-3 bg-slate-50 border rounded-xl outline-none">
+                        <input type="number" id="pack-price" placeholder="මිල" class="w-full md:w-32 p-3 bg-slate-50 border rounded-xl outline-none">
+                        <button id="add-pack-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition">එක් කරන්න</button>
+                    </div>
+                </div>
+                <div id="packs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6"></div>
+            </div>
+
+            <!-- Monthly Lessons Section -->
+            <div id="section-monthly" class="hidden space-y-6">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold mb-6 text-slate-800">නව මාසික පාඩම් මාලාවක් එක් කරන්න</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div class="w-full">
+                            <label class="text-xs font-bold text-slate-400 mb-1 block">ශ්‍රේණිය (Grade)</label>
+                            <select id="monthly-grade" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                                <option value="12">Grade 12</option>
+                                <option value="13">Grade 13</option>
+                            </select>
+                        </div>
+                        <div class="w-full">
+                            <label class="text-xs font-bold text-slate-400 mb-1 block">වසර (Year)</label>
+                            <select id="monthly-year" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                                <option value="2025">2025</option>
+                                <option value="2026" selected>2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                                <option value="2030">2030</option>
+                            </select>
+                        </div>
+                        <div class="w-full">
+                            <label class="text-xs font-bold text-slate-400 mb-1 block">මාසය (Month)</label>
+                            <select id="monthly-month" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                                <option value="January">January</option>
+                                <option value="February">February</option>
+                                <option value="March">March</option>
+                                <option value="April">April</option>
+                                <option value="May">May</option>
+                                <option value="June">June</option>
+                                <option value="July">July</option>
+                                <option value="August">August</option>
+                                <option value="September">September</option>
+                                <option value="October">October</option>
+                                <option value="November">November</option>
+                                <option value="December">December</option>
+                            </select>
+                        </div>
+                        <button id="add-monthly-btn" class="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition whitespace-nowrap">එක් කරන්න</button>
+                    </div>
+                </div>
+
+                <!-- Tabs for Grade 12 / 13 in Monthly Lessons List -->
+                <div class="flex gap-4 border-b border-slate-200 mb-4">
+                    <button onclick="filterMonthlyList('12')" id="btn-filter-12" class="pb-2 px-4 font-bold border-b-2 border-orange-600 text-orange-600">Grade 12</button>
+                    <button onclick="filterMonthlyList('13')" id="btn-filter-13" class="pb-2 px-4 font-bold border-b-2 border-transparent text-slate-400">Grade 13</button>
+                </div>
+                
+                <div id="monthly-packs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6"></div>
+            </div>
+
+            <!-- Students Section -->
+            <div id="section-students" class="hidden space-y-6">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold mb-6 text-slate-800">නව ශිෂ්‍යයෙකු ලියාපදිංචි කරන්න</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" id="student-name" placeholder="ශිෂ්‍යයාගේ නම" class="p-3 bg-slate-50 border rounded-xl outline-none">
+                        <select id="student-grade" class="p-3 bg-slate-50 border rounded-xl outline-none">
+                            <option value="">ශ්‍රේණිය තෝරන්න (Select Grade)</option>
+                            <option value="12">Grade 12</option>
+                            <option value="13">Grade 13</option>
+                        </select>
+                        <input type="text" id="student-id-input" placeholder="ID අංකය / නිකුත් කළ අංකය" class="p-3 bg-slate-50 border rounded-xl outline-none">
+                        <input type="text" id="student-school" placeholder="පාසල" class="p-3 bg-slate-50 border rounded-xl outline-none">
+                        <input type="email" id="student-email" placeholder="Email ලිපිනය" class="p-3 bg-slate-50 border rounded-xl outline-none md:col-span-2">
+                    </div>
+                    <button id="register-student-btn" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition w-full md:w-auto">ශිෂ්‍යයා ලියාපදිංචි කරන්න</button>
+                </div>
+                
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-slate-400 text-[11px] uppercase border-b">
+                                <th class="pb-3">ශිෂ්‍ය නම</th>
+                                <th class="pb-3">School / Grade / ID</th>
+                                <th class="pb-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-table-body" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Payments Section -->
+            <div id="section-payments" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
+                    <h3 class="text-lg font-bold mb-6 text-slate-800">ගෙවීම් සහ ඉල්ලීම් කළමනාකරණය</h3>
+                    
+                    <div class="mb-6 relative max-w-md">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-blue-600">MG-</span>
+                        <input type="text" id="payment-search" placeholder="ID අංකයෙන් සොයන්න" class="w-full pl-14 pr-4 py-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    </div>
+
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-slate-400 text-[11px] uppercase border-b">
+                                <th class="pb-3">ශිෂ්‍ය නම</th>
+                                <th class="pb-3">ශ්‍රේණිය / ID</th>
+                                <th class="pb-3">පාලනය</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-table-body" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Live Classes Section -->
+            <div id="section-liveclasses" class="hidden space-y-6">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold mb-6 text-slate-800">Live Class විස්තර යාවත්කාලීන කරන්න</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="live-title" placeholder="පන්තියේ මාතෘකාව" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                        <input type="text" id="live-url" placeholder="Zoom/YouTube Live Link" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                        <button id="update-live-btn" class="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition">සජීවීව විකාශය කරන්න</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lessons Section -->
+            <div id="section-lessons" class="hidden space-y-6">
+                <button id="back-to-parent" class="text-blue-600 font-bold flex items-center gap-2 mb-4">
+                    <i class="fas fa-arrow-left"></i> ආපසු යන්න
+                </button>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 id="current-pack-title" class="text-xl font-bold text-slate-800 mb-6 font-mono">Loading...</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="lesson-name" placeholder="පාඩමේ නම" class="w-full p-3 bg-slate-50 border rounded-xl outline-none">
+                            <div class="flex gap-2">
+                                <input type="text" id="lesson-url" placeholder="Video Link" class="flex-1 p-3 bg-slate-50 border rounded-xl outline-none">
+                                <button onclick="previewVideo()" class="bg-slate-100 p-3 rounded-xl text-slate-600 hover:bg-slate-200"><i class="fas fa-eye"></i></button>
+                            </div>
+                            <textarea id="lesson-desc" placeholder="පාඩම ගැන කෙටි හැඳින්වීමක්..." class="w-full p-3 bg-slate-50 border rounded-xl h-24 outline-none"></textarea>
+                            <button id="add-lesson-btn" class="w-full bg-slate-900 text-white p-4 rounded-xl font-bold shadow-xl">පාඩම සුරකින්න</button>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200">
+                        <h4 class="text-sm font-bold text-slate-400 mb-4 uppercase">Video Preview</h4>
+                        <div id="video-preview-cont" class="preview-box"></div>
+                    </div>
+                </div>
+                <div id="lessons-list" class="space-y-4 mt-8"></div>
+            </div>
+
+            <!-- Payment Modal -->
+            <div id="payment-modal" class="hidden fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+                <div class="bg-white p-8 rounded-[2rem] max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 id="modal-student-name" class="text-2xl font-bold text-slate-800">Access Management</h3>
+                        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
+                    </div>
+
+                    <div class="mb-10">
+                        <h4 class="text-xs font-bold text-blue-600 mb-4 uppercase tracking-widest border-b pb-2">Pending Pack Requests</h4>
+                        <div id="requested-packs-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                    </div>
+
+                    <div class="mb-10">
+                        <h4 class="text-xs font-bold text-blue-600 mb-4 uppercase tracking-widest border-b pb-2">All Study Packs Access & Expiry</h4>
+                        <div id="all-packs-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold text-orange-600 mb-4 uppercase tracking-widest border-b pb-2">Monthly Fee & Duration</h4>
+                        <div id="monthly-access-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+
+                    <button onclick="closeModal()" class="mt-10 w-full p-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 shadow-lg transition">Save and Close</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, serverTimestamp, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyDUvR4OkKz0IQju7dRGju6uDnEYdeyVe3g", 
+            authDomain: "malinda-lms.firebaseapp.com", 
+            databaseURL: "https://malinda-lms-default-rtdb.firebaseio.com", 
+            projectId: "malinda-lms", 
+            storageBucket: "malinda-lms.firebasestorage.app", 
+            appId: "1:668911175736:web:01b3732c6313e696603ecd" 
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const appId = "malinda-lms";
+
+        let currentStudentKey = null;
+        let activePackId = null;
+        let activeCollectionType = 'lessons';
+        let allStudents = {};
+        let monthlyMetas = {};
+        let studyPackMetas = {};
+        let currentMonthlyGradeFilter = '12';
+
+        // --- UI Functions ---
+        window.showSection = (id) => {
+            ['studypacks', 'lessons', 'liveclasses', 'students', 'monthly', 'payments'].forEach(s => {
+                const el = document.getElementById('section-'+s);
+                const tab = document.getElementById('tab-'+s);
+                if(el) el.classList.add('hidden');
+                if(tab) tab.classList.remove('active-tab');
+            });
+            document.getElementById('section-'+id).classList.remove('hidden');
+            const activeTab = document.getElementById('tab-'+id);
+            if(activeTab) activeTab.classList.add('active-tab');
+            
+            const titles = {
+                'studypacks': 'Study Packs කළමනාකරණය',
+                'students': 'ශිෂ්‍ය කළමනාකරණය',
+                'payments': 'ගෙවීම් කළමනාකරණය',
+                'liveclasses': 'සජීවී පන්ති',
+                'monthly': 'මාසික පාඩම් මාලා'
+            };
+            document.getElementById('page-title').innerText = titles[id] || 'කළමනාකරණ පුවරුව';
+        };
+
+        window.filterMonthlyList = (grade) => {
+            currentMonthlyGradeFilter = grade;
+            document.getElementById('btn-filter-12').classList.toggle('border-orange-600', grade === '12');
+            document.getElementById('btn-filter-12').classList.toggle('text-orange-600', grade === '12');
+            document.getElementById('btn-filter-12').classList.toggle('text-slate-400', grade !== '12');
+            
+            document.getElementById('btn-filter-13').classList.toggle('border-orange-600', grade === '13');
+            document.getElementById('btn-filter-13').classList.toggle('text-orange-600', grade === '13');
+            document.getElementById('btn-filter-13').classList.toggle('text-slate-400', grade !== '13');
+            
+            renderMonthlyPacks();
+        };
+
+        window.setQuickDate = (inputId, months) => {
+            const date = new Date();
+            date.setMonth(date.getMonth() + months);
+            const formatted = date.toISOString().split('T')[0];
+            const input = document.getElementById(inputId);
+            if(input) {
+                input.value = formatted;
+                input.dispatchEvent(new Event('change'));
+            }
+        };
+
+        // --- Data Fetching ---
+        function renderMonthlyPacks() {
+            const cont = document.getElementById('monthly-packs-list');
+            if(!cont) return;
+            cont.innerHTML = '';
+            Object.keys(monthlyMetas).forEach(k => {
+                const meta = monthlyMetas[k];
+                if(meta.grade != currentMonthlyGradeFilter) return;
+                
+                cont.innerHTML += `
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-b-4 border-orange-500">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">Grade ${meta.grade}</span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg mb-4">${meta.name}</h4>
+                    <div class="flex gap-2">
+                        <button onclick="window.manageLessons('${k}', '${meta.name}', 'monthly_lessons')" class="flex-1 bg-orange-600 text-white py-2 rounded-lg text-xs font-bold shadow-md">Manage Videos</button>
+                        <button onclick="window.deletePack('${k}', 'monthly_lessons_meta')" class="p-2 text-red-500 border rounded-lg hover:bg-red-50 transition"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        onValue(ref(db, `artifacts/${appId}/public/data/monthly_lessons_meta`), snap => {
+            monthlyMetas = snap.val() || {};
+            renderMonthlyPacks();
+        });
+
+        onValue(ref(db, `artifacts/${appId}/public/data/study_packs`), snap => {
+            studyPackMetas = snap.val() || {};
+            const cont = document.getElementById('packs-list');
+            if(cont) {
+                cont.innerHTML = '';
+                Object.keys(studyPackMetas).forEach(k => {
+                    cont.innerHTML += `
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-b-4 border-blue-600">
+                        <h4 class="font-bold text-slate-800 text-lg mb-1">${studyPackMetas[k].name}</h4>
+                        <p class="text-blue-600 font-extrabold mb-4">LKR ${studyPackMetas[k].price}</p>
+                        <div class="flex gap-2">
+                            <button onclick="window.manageLessons('${k}', '${studyPackMetas[k].name}', 'lessons')" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-bold shadow-md">Manage Lessons</button>
+                            <button onclick="window.deletePack('${k}', 'study_packs')" class="p-2 text-red-500 border rounded-lg hover:bg-red-50 transition"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>`;
+                });
+            }
+        });
+
+        onValue(ref(db, `artifacts/${appId}/public/data/students`), snap => {
+            const sTable = document.getElementById('students-table-body');
+            if(!sTable) return;
+            sTable.innerHTML = '';
+            allStudents = snap.val() || {};
+            Object.keys(allStudents).forEach(k => {
+                const s = allStudents[k];
+                sTable.innerHTML += `
+                <tr class="border-b hover:bg-slate-50 transition">
+                    <td class="py-4 font-bold text-slate-800">${s.name}</td>
+                    <td class="py-4 text-slate-500 text-xs">
+                        ${s.school} | <span class="bg-slate-100 px-2 py-0.5 rounded font-bold">G-${s.grade || 'N/A'}</span> <br> 
+                        <span class="font-mono text-blue-600">ID: ${s.classId}</span> <br>
+                        <span class="font-bold text-red-600">Pass: ${s.password}</span>
+                    </td>
+                    <td class="py-4 text-right">
+                        <button onclick="window.deleteStudent('${k}')" class="text-red-400 hover:bg-red-50 p-2 rounded-full"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+            renderPaymentTable(document.getElementById('payment-search').value);
+        });
+
+        // --- Core Logic ---
+        document.getElementById('add-pack-btn').addEventListener('click', () => {
+            const name = document.getElementById('pack-name').value;
+            const price = document.getElementById('pack-price').value;
+            if(name && price) {
+                push(ref(db, `artifacts/${appId}/public/data/study_packs`), { name, price, createdAt: serverTimestamp() });
+                document.getElementById('pack-name').value = '';
+                document.getElementById('pack-price').value = '';
+            }
+        });
+
+        document.getElementById('add-monthly-btn').addEventListener('click', () => {
+            const month = document.getElementById('monthly-month').value;
+            const year = document.getElementById('monthly-year').value;
+            const grade = document.getElementById('monthly-grade').value;
+            const fullName = `${month} ${year}`;
+            
+            if(month && year && grade) {
+                push(ref(db, `artifacts/${appId}/public/data/monthly_lessons_meta`), { name: fullName, grade, createdAt: serverTimestamp() });
+            } else {
+                alert('කරුණාකර සියලු විස්තර තෝරන්න.');
+            }
+        });
+
+        window.deletePack = (id, path) => confirm('Remove this item?') && remove(ref(db, `artifacts/${appId}/public/data/${path}/${id}`));
+
+        window.manageLessons = (id, name, type) => {
+            activePackId = id;
+            activeCollectionType = type;
+            document.getElementById('current-pack-title').innerText = name;
+            document.getElementById('back-to-parent').onclick = () => showSection(type === 'lessons' ? 'studypacks' : 'monthly');
+            showSection('lessons');
+            onValue(ref(db, `artifacts/${appId}/public/data/${type}/${id}`), snap => {
+                const cont = document.getElementById('lessons-list');
+                cont.innerHTML = '';
+                const data = snap.val();
+                if(data) Object.keys(data).forEach(lk => {
+                    cont.innerHTML += `
+                    <div class="bg-white p-4 rounded-xl border flex justify-between items-center shadow-sm">
+                        <span class="font-medium text-slate-700"><i class="fas fa-play-circle mr-2 text-blue-500"></i> ${data[lk].name}</span>
+                        <button onclick="window.deleteLesson('${lk}')" class="text-red-400 p-2 hover:bg-red-50 rounded-full transition"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                });
+            });
+        };
+
+        document.getElementById('add-lesson-btn').addEventListener('click', () => {
+            const name = document.getElementById('lesson-name').value;
+            const url = document.getElementById('lesson-url').value;
+            const desc = document.getElementById('lesson-desc').value;
+            if(name && url && activePackId) {
+                push(ref(db, `artifacts/${appId}/public/data/${activeCollectionType}/${activePackId}`), { 
+                    name, youtubeUrl: url, description: desc, createdAt: serverTimestamp() 
+                });
+                document.getElementById('lesson-name').value = '';
+                document.getElementById('lesson-url').value = '';
+                document.getElementById('lesson-desc').value = '';
+            }
+        });
+
+        window.deleteLesson = lid => confirm('Remove Video?') && remove(ref(db, `artifacts/${appId}/public/data/${activeCollectionType}/${activePackId}/${lid}`));
+
+        document.getElementById('register-student-btn').addEventListener('click', () => {
+            const name = document.getElementById('student-name').value;
+            const grade = document.getElementById('student-grade').value;
+            const idNumber = document.getElementById('student-id-input').value;
+            const school = document.getElementById('student-school').value;
+            const email = document.getElementById('student-email').value;
+            
+            if(name && idNumber && school && email && grade) {
+                const classId = "MG-" + Math.floor(1000 + Math.random() * 9000);
+                const password = Math.random().toString(36).slice(-6).toUpperCase();
+                push(ref(db, `artifacts/${appId}/public/data/students`), {
+                    name, grade, idNumber, school, email, classId, password, createdAt: serverTimestamp()
+                });
+                ['student-name', 'student-id-input', 'student-school', 'student-email', 'student-grade'].forEach(id => document.getElementById(id).value = '');
+            } else {
+                alert('සියලුම විස්තර සහ ශ්‍රේණිය (Grade) ඇතුළත් කරන්න.');
+            }
+        });
+
+        window.deleteStudent = id => confirm('Remove Student?') && remove(ref(db, `artifacts/${appId}/public/data/students/${id}`));
+
+        window.openPayments = (key) => {
+            currentStudentKey = key;
+            document.getElementById('payment-modal').classList.remove('hidden');
+            
+            onValue(ref(db, `artifacts/${appId}/public/data/students/${key}`), snap => {
+                const s = snap.val();
+                if(!s) return;
+                document.getElementById('modal-student-name').innerText = s.name + " (" + s.classId + ") - Grade " + (s.grade || 'N/A');
+                
+                const reqCont = document.getElementById('requested-packs-list');
+                reqCont.innerHTML = '';
+                if(s.requests) {
+                    Object.keys(s.requests).forEach(rk => {
+                        reqCont.innerHTML += `
+                        <div class="flex justify-between items-center bg-blue-50 p-4 rounded-2xl border border-blue-100 shadow-sm">
+                            <span class="text-sm font-bold text-slate-700">${s.requests[rk].packName}</span>
+                            <button onclick="window.approvePack('${rk}')" class="bg-blue-600 text-white text-[10px] px-4 py-2 rounded-xl font-bold uppercase tracking-wider">Approve</button>
+                        </div>`;
+                    });
+                } else { reqCont.innerHTML = '<p class="col-span-full text-xs text-slate-400 italic text-center bg-slate-50 p-4 rounded-2xl">No pending requests.</p>'; }
+
+                const allPacksGrid = document.getElementById('all-packs-grid');
+                allPacksGrid.innerHTML = '';
+                Object.keys(studyPackMetas).forEach(packId => {
+                    const pack = studyPackMetas[packId];
+                    const packData = s.unlockedPacks?.[packId];
+                    const isUnlocked = !!packData;
+                    const expiry = (typeof packData === 'object' ? packData.expiryDate : "") || "";
+                    const inputId = `exp-pack-${packId}`;
+
+                    allPacksGrid.innerHTML += `
+                    <div class="p-4 rounded-2xl border shadow-sm transition-all ${isUnlocked ? 'bg-blue-50 border-blue-200' : 'bg-white border-slate-200'}">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold text-slate-700">${pack.name}</span>
+                            <input type="checkbox" class="pack-checkbox" ${isUnlocked ? 'checked' : ''} onchange="window.togglePackUnlock('${packId}', this.checked)">
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[9px] uppercase font-bold text-slate-400">Expiry Date</label>
+                                <div class="flex gap-1">
+                                    <button onclick="window.setQuickDate('${inputId}', 1)" class="quick-btn">1M</button>
+                                    <button onclick="window.setQuickDate('${inputId}', 3)" class="quick-btn">3M</button>
+                                    <button onclick="window.setQuickDate('${inputId}', 6)" class="quick-btn">6M</button>
+                                </div>
+                            </div>
+                            <input type="date" id="${inputId}" value="${expiry}" class="w-full text-xs p-2 bg-white/50 border rounded-lg outline-none" onchange="window.updatePackExpiry('${packId}', this.value)">
+                        </div>
+                    </div>`;
+                });
+
+                const gridCont = document.getElementById('monthly-access-grid');
+                gridCont.innerHTML = '';
+                Object.keys(monthlyMetas).forEach(metaId => {
+                    const meta = monthlyMetas[metaId];
+                    const accessData = s.monthlyAccess?.[metaId];
+                    const isPaid = !!accessData?.isPaid;
+                    const expiry = accessData?.expiryDate || "";
+                    const inputId = `exp-month-${metaId}`;
+                    
+                    gridCont.innerHTML += `
+                    <div class="p-4 rounded-2xl border shadow-sm transition-all ${isPaid ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200'}">
+                        <div class="flex justify-between items-center mb-1">
+                            <h5 class="font-bold text-slate-800 text-sm">${meta.name}</h5>
+                            <input type="checkbox" class="paid-checkbox" ${isPaid ? 'checked' : ''} onchange="window.toggleMonthlyAccess('${metaId}', this.checked)">
+                        </div>
+                        <span class="text-[9px] font-bold text-orange-500 uppercase mb-2 block">Grade ${meta.grade}</span>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-[9px] uppercase font-bold text-slate-400">Expiry Date</label>
+                                <div class="flex gap-1">
+                                    <button onclick="window.setQuickDate('${inputId}', 1)" class="quick-btn">1M</button>
+                                    <button onclick="window.setQuickDate('${inputId}', 3)" class="quick-btn">3M</button>
+                                    <button onclick="window.setQuickDate('${inputId}', 6)" class="quick-btn">6M</button>
+                                </div>
+                            </div>
+                            <input type="date" id="${inputId}" value="${expiry}" class="w-full text-xs p-2 bg-white/50 border rounded-lg outline-none" onchange="window.updateExpiryDate('${metaId}', this.value)">
+                        </div>
+                    </div>`;
+                });
+            });
+        };
+
+        window.togglePackUnlock = (packId, isUnlocked) => {
+            if(!currentStudentKey) return;
+            if(isUnlocked) set(ref(db, `artifacts/${appId}/public/data/students/${currentStudentKey}/unlockedPacks/${packId}`), { enabled: true });
+            else remove(ref(db, `artifacts/${appId}/public/data/students/${currentStudentKey}/unlockedPacks/${packId}`));
+        };
+
+        window.updatePackExpiry = (packId, expiryDate) => {
+            if(!currentStudentKey) return;
+            update(ref(db, `artifacts/${appId}/public/data/students/${currentStudentKey}/unlockedPacks/${packId}`), { expiryDate: expiryDate, enabled: true });
+        };
+
+        window.toggleMonthlyAccess = (metaId, isPaid) => {
+            if(!currentStudentKey) return;
+            update(ref(db, `artifacts/${appId}/public/data/students/${currentStudentKey}/monthlyAccess/${metaId}`), { isPaid: isPaid });
+        };
+
+        window.updateExpiryDate = (metaId, expiryDate) => {
+            if(!currentStudentKey) return;
+            update(ref(db, `artifacts/${appId}/public/data/students/${currentStudentKey}/monthlyAccess/${metaId}`), { expiryDate: expiryDate });
+        };
+
+        window.approvePack = (packId) => {
+            set(ref(db, `artifacts/${appId}/public/data/students/${currentStudentKey}/unlockedPacks/${packId}`), { enabled: true });
+            remove(ref(db, `artifacts/${appId}/public/data/students/${currentStudentKey}/requests/${packId}`));
+        };
+
+        window.closeModal = () => document.getElementById('payment-modal').classList.add('hidden');
+
+        document.getElementById('payment-search').addEventListener('input', e => renderPaymentTable(e.target.value));
+
+        function renderPaymentTable(filterText = "") {
+            const pTable = document.getElementById('payments-table-body');
+            pTable.innerHTML = '';
+            const normalizedFilter = filterText.toLowerCase();
+            Object.keys(allStudents).forEach(k => {
+                const s = allStudents[k];
+                if (normalizedFilter && !s.classId.toLowerCase().includes("mg-" + normalizedFilter)) return;
+                pTable.innerHTML += `
+                <tr class="border-b hover:bg-slate-50 transition">
+                    <td class="py-4 font-bold text-slate-800">${s.name}</td>
+                    <td class="py-4 font-mono text-blue-600">
+                        <span class="text-slate-400 text-[10px] block">Grade ${s.grade || '?'}</span>
+                        ${s.classId}
+                    </td>
+                    <td class="py-4">
+                        <button onclick="window.openPayments('${k}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md">Manage Access</button>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        window.previewVideo = () => {
+            const url = document.getElementById('lesson-url').value;
+            const cont = document.getElementById('video-preview-cont');
+            if(!url) return;
+            if(url.includes('youtube.com') || url.includes('youtu.be')){
+                let id = url.split('v=')[1] || url.split('/').pop();
+                cont.innerHTML = `<iframe src="https://www.youtube.com/embed/${id}"></iframe>`;
+            } else if(url.includes('drive.google.com')){
+                let id = url.includes('/d/') ? url.split('/d/')[1].split('/')[0] : url.split('id=')[1].split('&')[0];
+                cont.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview"></iframe>`;
+            } else {
+                cont.innerHTML = `<video controls><source src="${url}" type="video/mp4"></video>`;
+            }
+        };
+
+        document.getElementById('update-live-btn').addEventListener('click', () => {
+            const title = document.getElementById('live-title').value;
+            const url = document.getElementById('live-url').value;
+            if(title && url) {
+                set(ref(db, `artifacts/${appId}/public/data/live_class`), { title, url, updatedAt: serverTimestamp() });
+                alert('Live Class Updated!');
+            }
+        });
+    </script>
+</body>
+</html>
