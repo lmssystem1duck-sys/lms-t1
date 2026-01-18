@@ -239,13 +239,13 @@
                 </div>
             </section>
 
-            <!-- Morning Booster Section -->
-            <section id="morning-booster-section">
+            <!-- Monthly Lessons Section -->
+            <section id="monthly-lessons-section">
                 <h3 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-                    <i class="fas fa-bolt text-orange-500"></i> Morning Booster
+                    <i class="fas fa-calendar-alt text-indigo-600"></i> මාසික පාඩම් (Monthly Lessons)
                 </h3>
-                <div id="morning-booster-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="col-span-full flex justify-center py-4 text-slate-400 text-sm italic">තවම අන්තර්ගතයන් ඇතුළත් කර නොමැත.</div>
+                <div id="monthly-lessons-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="col-span-full flex justify-center py-4 text-slate-400 text-sm italic">මෙහි අන්තර්ගතයන් ලබා ගැනීමට ඔබේ ශ්‍රේණිය තෝරන්න.</div>
                 </div>
             </section>
 
@@ -366,7 +366,7 @@
         function fetchInitialData() {
             fetchOnlineClasses();
             fetchStudyPacks();
-            fetchMorningBoosters();
+            fetchMonthlyLessons();
         }
 
         function updateWatermark(element) {
@@ -500,25 +500,39 @@
             });
         }
 
-        function fetchMorningBoosters() {
-            onValue(ref(db, `artifacts/${appId}/public/data/morning_boosters`), (snap) => {
+        function fetchMonthlyLessons() {
+            onValue(ref(db, `artifacts/${appId}/public/data/monthly_lessons`), (snap) => {
                 const data = snap.val();
-                const cont = document.getElementById('morning-booster-list');
+                const cont = document.getElementById('monthly-lessons-list');
                 if(!cont) return;
                 if(data) {
                     cont.innerHTML = '';
                     Object.keys(data).forEach(k => {
+                        const lesson = data[k];
+                        // Security: Filter by Student Grade if available
+                        if (currentUser && currentUser.grade && lesson.grade && currentUser.grade !== lesson.grade && currentUser.classId !== "1") {
+                            return; 
+                        }
+
                         cont.innerHTML += `
-                            <div class="glass-card p-8 shadow-sm flex flex-col justify-between border-b-8 border-orange-500">
+                            <div class="glass-card p-8 shadow-sm flex flex-col justify-between border-b-8 border-indigo-500">
                                 <div>
-                                    <h4 class="font-bold text-slate-900 text-lg mb-4">${data[k].name}</h4>
-                                    <p class="text-slate-500 text-sm mb-6 leading-relaxed">${data[k].description || ''}</p>
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h4 class="font-bold text-slate-900 text-lg">${lesson.name}</h4>
+                                        ${lesson.grade ? `<span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-1 rounded">Grade ${lesson.grade}</span>` : ''}
+                                    </div>
+                                    <p class="text-slate-500 text-sm mb-6 leading-relaxed">${lesson.description || ''}</p>
                                 </div>
-                                <button onclick="window.fetchLessons('${k}', '${data[k].name}')" class="w-full bg-orange-500 text-white py-4 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-center gap-2">
-                                    <i class="fas fa-bolt"></i> ආරම්භ කරන්න
+                                <button onclick="window.fetchLessons('${k}', '${lesson.name}')" class="w-full bg-indigo-600 text-white py-4 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-indigo-700 transition">
+                                    <i class="fas fa-book-open"></i> පාඩම නරඹන්න
                                 </button>
                             </div>`;
                     });
+                    if (cont.innerHTML === '') {
+                        cont.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400 font-medium italic">ඔබේ ශ්‍රේණියට අදාළ පාඩම් කිසිවක් දැනට නොමැත.</div>';
+                    }
+                } else {
+                    cont.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400 font-medium italic">තවම පාඩම් එක් කර නොමැත.</div>';
                 }
             });
         }
