@@ -108,18 +108,24 @@
                         <button id="add-monthly-btn" class="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition whitespace-nowrap">එක් කරන්න</button>
                     </div>
                 </div>
-
-                <!-- Tabs for Grade 12 / 13 in Monthly Lessons List -->
-                <div class="flex gap-4 border-b border-slate-200 mb-4">
-                    <button onclick="filterMonthlyList('12')" id="btn-filter-12" class="pb-2 px-4 font-bold border-b-2 border-orange-600 text-orange-600">Grade 12</button>
-                    <button onclick="filterMonthlyList('13')" id="btn-filter-13" class="pb-2 px-4 font-bold border-b-2 border-transparent text-slate-400">Grade 13</button>
-                </div>
-                
                 <div id="monthly-packs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6"></div>
             </div>
 
             <!-- Students Section -->
             <div id="section-students" class="hidden space-y-6">
+                <!-- NEW: Manage Grades UI -->
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-bold mb-6 text-slate-800">Manage Grades</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="window.promoteGrade12To13()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition flex items-center gap-2">
+                            <i class="fas fa-arrow-up"></i> Move Grade 12 to 13
+                        </button>
+                        <button onclick="window.deleteAllGrade13()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-bold shadow-md transition flex items-center gap-2">
+                            <i class="fas fa-user-times"></i> Delete All Grade 13
+                        </button>
+                    </div>
+                </div>
+
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
                     <h3 class="text-lg font-bold mb-6 text-slate-800">නව ශිෂ්‍යයෙකු ලියාපදිංචි කරන්න</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -135,7 +141,6 @@
                     </div>
                     <button id="register-student-btn" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition w-full md:w-auto">ශිෂ්‍යයා ලියාපදිංචි කරන්න</button>
                 </div>
-                
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
@@ -154,13 +159,11 @@
             <div id="section-payments" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
                     <h3 class="text-lg font-bold mb-6 text-slate-800">ගෙවීම් සහ ඉල්ලීම් කළමනාකරණය</h3>
-                    
                     <div class="mb-6 relative max-w-md">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-blue-600">MG-</span>
                         <input type="text" id="payment-search" placeholder="ID අංකයෙන් සොයන්න" class="w-full pl-14 pr-4 py-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
                         <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                     </div>
-
                     <table class="w-full text-left">
                         <thead>
                             <tr class="text-slate-400 text-[11px] uppercase border-b">
@@ -219,22 +222,18 @@
                         <h3 id="modal-student-name" class="text-2xl font-bold text-slate-800">Access Management</h3>
                         <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
                     </div>
-
                     <div class="mb-10">
                         <h4 class="text-xs font-bold text-blue-600 mb-4 uppercase tracking-widest border-b pb-2">Pending Pack Requests</h4>
                         <div id="requested-packs-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
                     </div>
-
                     <div class="mb-10">
                         <h4 class="text-xs font-bold text-blue-600 mb-4 uppercase tracking-widest border-b pb-2">All Study Packs Access & Expiry</h4>
                         <div id="all-packs-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
-
                     <div>
                         <h4 class="text-xs font-bold text-orange-600 mb-4 uppercase tracking-widest border-b pb-2">Monthly Fee & Duration</h4>
                         <div id="monthly-access-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
-
                     <button onclick="closeModal()" class="mt-10 w-full p-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 shadow-lg transition">Save and Close</button>
                 </div>
             </div>
@@ -263,7 +262,6 @@
         let allStudents = {};
         let monthlyMetas = {};
         let studyPackMetas = {};
-        let currentMonthlyGradeFilter = '12';
 
         // --- UI Functions ---
         window.showSection = (id) => {
@@ -287,19 +285,6 @@
             document.getElementById('page-title').innerText = titles[id] || 'කළමනාකරණ පුවරුව';
         };
 
-        window.filterMonthlyList = (grade) => {
-            currentMonthlyGradeFilter = grade;
-            document.getElementById('btn-filter-12').classList.toggle('border-orange-600', grade === '12');
-            document.getElementById('btn-filter-12').classList.toggle('text-orange-600', grade === '12');
-            document.getElementById('btn-filter-12').classList.toggle('text-slate-400', grade !== '12');
-            
-            document.getElementById('btn-filter-13').classList.toggle('border-orange-600', grade === '13');
-            document.getElementById('btn-filter-13').classList.toggle('text-orange-600', grade === '13');
-            document.getElementById('btn-filter-13').classList.toggle('text-slate-400', grade !== '13');
-            
-            renderMonthlyPacks();
-        };
-
         window.setQuickDate = (inputId, months) => {
             const date = new Date();
             date.setMonth(date.getMonth() + months);
@@ -312,14 +297,13 @@
         };
 
         // --- Data Fetching ---
-        function renderMonthlyPacks() {
+        onValue(ref(db, `artifacts/${appId}/public/data/monthly_lessons_meta`), snap => {
             const cont = document.getElementById('monthly-packs-list');
             if(!cont) return;
             cont.innerHTML = '';
+            monthlyMetas = snap.val() || {};
             Object.keys(monthlyMetas).forEach(k => {
                 const meta = monthlyMetas[k];
-                if(meta.grade != currentMonthlyGradeFilter) return;
-                
                 cont.innerHTML += `
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm border-b-4 border-orange-500">
                     <div class="flex justify-between mb-2">
@@ -332,11 +316,6 @@
                     </div>
                 </div>`;
             });
-        }
-
-        onValue(ref(db, `artifacts/${appId}/public/data/monthly_lessons_meta`), snap => {
-            monthlyMetas = snap.val() || {};
-            renderMonthlyPacks();
         });
 
         onValue(ref(db, `artifacts/${appId}/public/data/study_packs`), snap => {
@@ -380,6 +359,31 @@
             });
             renderPaymentTable(document.getElementById('payment-search').value);
         });
+
+        // --- NEW: Grade Management Logic ---
+        window.promoteGrade12To13 = () => {
+            if(!confirm('මෙමගින් Grade 12 හි සිටින සියලුම ශිෂ්‍යයන් Grade 13 දක්වා මාරු කරනු ලබයි. ඉදිරියට යන්නද?')) return;
+            let count = 0;
+            Object.keys(allStudents).forEach(key => {
+                if(allStudents[key].grade == "12") {
+                    update(ref(db, `artifacts/${appId}/public/data/students/${key}`), { grade: "13" });
+                    count++;
+                }
+            });
+            alert(`${count} students promoted to Grade 13 successfully!`);
+        };
+
+        window.deleteAllGrade13 = () => {
+            if(!confirm('අවවාදයයි! Grade 13 හි සිටින සියලුම ශිෂ්‍යයන් සහ ඔවුන්ගේ දත්ත ස්ථිරවම ඉවත් කරනු ලබයි. මෙය ආපසු හැරවිය නොහැක. ඉදිරියට යන්නද?')) return;
+            let count = 0;
+            Object.keys(allStudents).forEach(key => {
+                if(allStudents[key].grade == "13") {
+                    remove(ref(db, `artifacts/${appId}/public/data/students/${key}`));
+                    count++;
+                }
+            });
+            alert(`${count} students from Grade 13 were deleted.`);
+        };
 
         // --- Core Logic ---
         document.getElementById('add-pack-btn').addEventListener('click', () => {
