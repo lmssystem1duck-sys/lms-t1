@@ -122,10 +122,6 @@
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .profile-img:hover {
-            transform: scale(1.05) rotate(2deg);
-        }
-
         .online-dot {
             height: 12px;
             width: 12px;
@@ -151,11 +147,6 @@
             height: auto;
             opacity: 0.8;
             transition: all 0.3s ease;
-        }
-
-        .footer-logo:hover {
-            opacity: 1;
-            transform: rotate(15deg);
         }
     </style>
 </head>
@@ -204,28 +195,21 @@
             <!-- Header Section -->
             <header class="header-gradient rounded-[3rem] p-8 md:p-14 text-white relative overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-10 border border-white/5">
                 <div class="flex-shrink-0 relative z-10 group">
-                    <div class="absolute -inset-4 bg-blue-500/20 rounded-full blur-2xl group-hover:bg-blue-500/30 transition duration-500"></div>
                     <img src="mg-removebg-preview.png" alt="Malinda Galappaththi" class="profile-img relative z-10" onerror="this.src='https://ui-avatars.com/api/?name=Malinda+Galappaththi&background=2563eb&color=fff&size=256'">
                 </div>
                 <div class="relative z-10 text-center md:text-left flex-1">
-                    <span class="bg-blue-500/20 text-blue-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">Welcome Back</span>
                     <h2 class="text-4xl md:text-6xl font-black tracking-tight mb-3">මාලින්ද ගලප්පත්ති</h2>
                     <p class="text-blue-400 font-bold text-xl md:text-2xl mb-6">Physics Expert</p>
-                    <p class="text-slate-400 text-sm md:text-lg max-w-xl leading-relaxed">ඔබේ විෂය නිර්දේශයට අදාළ සියලුම පාඩම් මාලා සහ සජීවී පන්ති මෙතැනින් ආරක්ෂිතව නරඹන්න.</p>
                 </div>
-                <i class="fas fa-atom absolute right-[-40px] top-[-40px] text-[200px] text-white/5 rotate-12"></i>
-                <i class="fas fa-shield-alt absolute left-[10%] bottom-[-30px] text-[100px] text-white/5 -rotate-12"></i>
             </header>
 
-            <!-- Online Class Section -->
-            <section id="online-classes-section">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
-                        <span class="online-dot"></span> Online පන්ති
-                    </h3>
-                </div>
-                <div id="online-classes-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Placeholder -->
+            <!-- Monthly Lessons Section -->
+            <section id="monthly-lessons-section">
+                <h3 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
+                    <i class="fas fa-calendar-alt text-indigo-600"></i> මාසික පාඩම් (Monthly Lessons)
+                </h3>
+                <div id="monthly-lessons-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Months will be listed here -->
                 </div>
             </section>
 
@@ -239,44 +223,27 @@
                 </div>
             </section>
 
-            <!-- Monthly Lessons Section -->
-            <section id="monthly-lessons-section">
-                <h3 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-                    <i class="fas fa-calendar-alt text-indigo-600"></i> මාසික පාඩම් (Monthly Lessons)
-                </h3>
-                <div id="monthly-lessons-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="col-span-full flex justify-center py-4 text-slate-400 text-sm italic">දත්ත ලබා ගනිමින් පවතී...</div>
+            <!-- Online Class Section -->
+            <section id="online-classes-section">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-black text-slate-900 flex items-center gap-3">
+                        <span class="online-dot"></span> Online පන්ති
+                    </h3>
                 </div>
+                <div id="online-classes-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </section>
 
-            <!-- Footer Section -->
-            <footer class="text-center py-14 border-t border-slate-200 mt-20">
-                <div class="flex justify-center gap-4 mb-4 text-slate-300">
-                    <i class="fas fa-lock text-slate-400"></i>
-                    <i class="fas fa-shield-alt text-slate-400"></i>
-                    <i class="fas fa-user-shield text-slate-400"></i>
-                </div>
-                <div class="flex items-center justify-center mb-6">
-                    <img src="Dharma_wheel.svg.png" alt="Dharma Wheel" class="footer-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3246/3246237.png'">
-                </div>
-                <p class="text-slate-800 text-sm font-bold mb-1">සබ්බේ ධම්මා අනත්තා</p>
-                <p class="text-slate-400 text-[10px] font-bold tracking-widest uppercase">Nudara Concepts &copy; 2026</p>
-            </footer>
         </main>
     </div>
 
     <!-- Lessons View -->
     <div id="lessons-page-view" class="hidden min-h-screen bg-slate-50 p-4 md:p-8">
         <div class="max-w-5xl mx-auto">
-            <button onclick="closeLessons()" class="mb-8 flex items-center gap-3 text-blue-600 font-black text-sm bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-100 hover:bg-blue-50 transition">
+            <button onclick="closeLessons()" class="mb-8 flex items-center gap-3 text-blue-600 font-black text-sm bg-white px-5 py-3 rounded-2xl shadow-sm border border-slate-100">
                 <i class="fas fa-arrow-left"></i> ආපසු යන්න
             </button>
-            <h3 id="selected-pack-name" class="text-2xl font-black text-slate-900 mb-10 border-l-8 border-blue-600 pl-4 tracking-tight"></h3>
+            <h3 id="selected-pack-name" class="text-2xl font-black text-slate-900 mb-10 border-l-8 border-blue-600 pl-4"></h3>
             <div id="lessons-grid" class="space-y-8 pb-24"></div>
-            
-            <footer class="text-center py-8">
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Nudara Concepts Security Verified</p>
-            </footer>
         </div>
     </div>
 
@@ -301,32 +268,21 @@
         let currentUser = null;
         let currentUserKey = null;
 
-        fetch('https://api.ipify.org?format=json')
-            .then(res => res.json())
-            .then(data => userIp = data.ip)
-            .catch(() => userIp = "Hidden IP");
+        fetch('https://api.ipify.org?format=json').then(res => res.json()).then(data => userIp = data.ip);
 
         const loginBtn = document.getElementById('login-btn');
         const loginScreen = document.getElementById('login-screen');
         const navBar = document.getElementById('nav-bar');
         const mainContent = document.getElementById('main-dashboard-content');
 
-        // Check Session
         const savedUserKey = sessionStorage.getItem('lms_student_key');
         if (savedUserKey) checkUser(savedUserKey);
 
         loginBtn.addEventListener('click', async () => {
             const classId = document.getElementById('login-class-id').value.trim().toUpperCase();
             const password = document.getElementById('login-password').value.trim();
-            if(!classId || !password) return;
-
-            loginBtn.innerText = "සත්‍යාපනය වෙමින් පවතී...";
-            loginBtn.disabled = true;
-
-            const studentsRef = ref(db, `artifacts/${appId}/public/data/students`);
-            const snap = await get(studentsRef);
+            const snap = await get(ref(db, `artifacts/${appId}/public/data/students`));
             const students = snap.val();
-            
             let found = false;
             if(students) {
                 Object.keys(students).forEach(k => {
@@ -337,239 +293,147 @@
                     }
                 });
             }
-
-            if(!found) {
-                document.getElementById('login-error').classList.remove('hidden');
-                loginBtn.innerText = "පද්ධතියට ඇතුළු වන්න";
-                loginBtn.disabled = false;
-            }
+            if(!found) document.getElementById('login-error').classList.remove('hidden');
         });
 
         function checkUser(key) {
             onValue(ref(db, `artifacts/${appId}/public/data/students/${key}`), (snap) => {
                 const user = snap.val();
                 if(user) {
-                    currentUser = user;
-                    currentUserKey = key;
-                    loginScreen.classList.add('hidden');
-                    navBar.classList.remove('hidden');
-                    mainContent.classList.remove('hidden');
+                    currentUser = user; currentUserKey = key;
+                    loginScreen.classList.add('hidden'); navBar.classList.remove('hidden'); mainContent.classList.remove('hidden');
                     document.getElementById('student-display-name').innerText = user.name.toUpperCase();
                     fetchInitialData();
-                } else {
-                    sessionStorage.removeItem('lms_student_key');
-                    location.reload();
-                }
+                } else { sessionStorage.removeItem('lms_student_key'); location.reload(); }
             });
         }
 
         function fetchInitialData() {
             fetchOnlineClasses();
             fetchStudyPacks();
-            fetchMonthlyLessons();
+            fetchMonthlyMonths();
         }
 
         function updateWatermark(element) {
             if (!element || !currentUser) return;
-            const now = new Date();
-            element.innerText = `${currentUser.name} | ID: ${currentUser.classId} | IP: ${userIp} | ${now.toLocaleTimeString()}`;
+            element.innerText = `${currentUser.name} | ID: ${currentUser.classId} | IP: ${userIp} | ${new Date().toLocaleTimeString()}`;
             const parent = element.parentElement;
-            if(parent) {
-                const maxX = parent.offsetWidth - element.offsetWidth;
-                const maxY = parent.offsetHeight - element.offsetHeight;
-                element.style.left = (Math.random() * (maxX > 0 ? maxX : 0)) + "px";
-                element.style.top = (Math.random() * (maxY > 0 ? maxY : 0)) + "px";
-            }
+            element.style.left = (Math.random() * (parent.offsetWidth - element.offsetWidth)) + "px";
+            element.style.top = (Math.random() * (parent.offsetHeight - element.offsetHeight)) + "px";
         }
 
-        window.toggleFullScreen = (containerId) => {
-            const elem = document.getElementById(containerId);
-            if (!elem) return;
-            if (!document.fullscreenElement) {
-                if (elem.requestFullscreen) elem.requestFullscreen();
-                else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
+        window.toggleFullScreen = (id) => {
+            const elem = document.getElementById(id);
+            if (!document.fullscreenElement) elem.requestFullscreen(); else document.exitFullscreen();
         };
 
         function generateSecurePlayer(url) {
             if (!url) return '';
             const containerId = "cont-" + Math.random().toString(36).substr(2, 9);
-            let playerHtml = '';
-            
+            const wmId = "wm-" + Math.random().toString(36).substr(2, 9);
+            let player = '';
             if (url.includes('drive.google.com')) {
                 let id = url.includes('/d/') ? url.split('/d/')[1].split('/')[0] : url.split('id=')[1].split('&')[0];
-                playerHtml = `<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay"></iframe>`;
+                player = `<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay"></iframe>`;
             } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                let id = url.split('v=')[1] || url.split('/').pop();
-                if(id.includes('&')) id = id.split('&')[0];
-                playerHtml = `<iframe src="https://www.youtube.com/embed/${id}?modestbranding=1&rel=0" allowfullscreen></iframe>`;
-            } else {
-                playerHtml = `<video controls controlsList="nodownload"><source src="${url}" type="video/mp4"></video>`;
-            }
+                let id = url.split('v=')[1] || url.split('/').pop(); if(id.includes('&')) id = id.split('&')[0];
+                player = `<iframe src="https://www.youtube.com/embed/${id}?modestbranding=1&rel=0" allowfullscreen></iframe>`;
+            } else { player = `<video controls controlsList="nodownload"><source src="${url}" type="video/mp4"></video>`; }
+            
+            setTimeout(() => { const wm = document.getElementById(wmId); if(wm) { updateWatermark(wm); setInterval(() => updateWatermark(wm), 7000); }}, 1000);
 
-            const watermarkId = "wm-" + Math.random().toString(36).substr(2, 9);
-            setTimeout(() => {
-                const wm = document.getElementById(watermarkId);
-                if(wm) {
-                    updateWatermark(wm);
-                    setInterval(() => updateWatermark(wm), 7000);
-                }
-            }, 1000);
-
-            return `
-                <div id="${containerId}" class="video-container">
-                    ${playerHtml}
-                    <div class="video-shield-restricted"></div>
-                    <div id="${watermarkId}" class="dynamic-watermark">Loading User Identity...</div>
-                    <button class="fs-overlay-btn" onclick="toggleFullScreen('${containerId}')">
-                        <i class="fas fa-expand"></i> Full Screen
-                    </button>
-                </div>`;
+            return `<div id="${containerId}" class="video-container">${player}<div class="video-shield-restricted"></div><div id="${wmId}" class="dynamic-watermark">Loading...</div><button class="fs-overlay-btn" onclick="toggleFullScreen('${containerId}')"><i class="fas fa-expand"></i> Full Screen</button></div>`;
         }
 
-        window.requestPack = (packId, packName) => {
-            if(!currentUserKey) return;
-            if(confirm(`ඔබට ${packName} පාඩම් මාලාව සඳහා අවසර අවශ්‍යද?`)) {
-                set(ref(db, `artifacts/${appId}/public/data/students/${currentUserKey}/requests/${packId}`), {
-                    packName: packName,
-                    requestedAt: Date.now()
-                });
-                alert('ඔබේ ඉල්ලීම යොමු කළා. Admin අනුමත කළ පසු නැරඹිය හැකිය.');
-            }
-        }
-
-        window.fetchLessons = (packId, packName) => {
-            mainContent.classList.add('hidden');
-            document.getElementById('lessons-page-view').classList.remove('hidden');
-            document.getElementById('selected-pack-name').innerText = packName;
-            const grid = document.getElementById('lessons-grid');
-            grid.innerHTML = '<div class="flex justify-center py-10"><div class="loader"></div></div>';
-
-            onValue(ref(db, `artifacts/${appId}/public/data/lessons/${packId}`), (snap) => {
-                const data = snap.val();
-                grid.innerHTML = '';
-                if(data) {
-                    Object.values(data).sort((a,b) => (a.createdAt || 0) - (b.createdAt || 0)).forEach(l => {
-                        grid.innerHTML += `
-                            <div class="glass-card p-6 md:p-10 shadow-lg border border-slate-100">
-                                <h4 class="font-black text-slate-900 mb-6 flex items-center gap-3 text-lg">
-                                    <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-xs"><i class="fas fa-play"></i></div>
-                                    ${l.name || l.title || 'Untitled Lesson'}
-                                </h4>
-                                ${generateSecurePlayer(l.youtubeUrl || l.videoUrl || l.url)}
-                                ${(l.description || l.desc) ? `<div class="mt-6 text-slate-500 text-sm bg-slate-50 p-5 rounded-2xl border-l-4 border-blue-400 italic">${l.description || l.desc}</div>` : ''}
-                            </div>`;
-                    });
-                } else {
-                    grid.innerHTML = '<div class="text-center py-24 text-slate-400 font-medium">තවම පාඩම් එක් කර නොමැත.</div>';
-                }
-            });
-        };
-
-        window.closeLessons = () => {
-            document.getElementById('lessons-page-view').classList.add('hidden');
-            mainContent.classList.remove('hidden');
-            window.scrollTo(0,0);
-        };
-
-        function fetchOnlineClasses() {
-            onValue(ref(db, `artifacts/${appId}/public/data/online_classes`), (snap) => {
-                const data = snap.val();
-                const cont = document.getElementById('online-classes-list');
-                if(!cont) return;
-                cont.innerHTML = '';
-                if(data) {
-                    Object.keys(data).forEach(k => {
-                        cont.innerHTML += `
-                            <div class="glass-card p-8 border-l-8 border-red-500 shadow-sm flex flex-col justify-between">
-                                <div>
-                                    <div class="flex justify-between items-start mb-4">
-                                        <h4 class="font-bold text-slate-900 text-lg">${data[k].name || data[k].title}</h4>
-                                        <span class="bg-red-500 text-white text-[10px] font-black px-3 py-1 rounded-full animate-pulse">LIVE NOW</span>
-                                    </div>
-                                    <p class="text-slate-500 text-sm mb-6 leading-relaxed">${data[k].description || data[k].desc || ''}</p>
-                                </div>
-                                <a href="${data[k].link || data[k].url}" target="_blank" class="w-full bg-red-600 text-white py-4 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-red-700 transition">
-                                    <i class="fas fa-video"></i> පන්තියට සම්බන්ධ වන්න
-                                </a>
-                            </div>`;
-                    });
-                }
-            });
-        }
-
-        function fetchMonthlyLessons() {
+        // --- NEW Logic for Monthly Lessons (Grouped by Month) ---
+        function fetchMonthlyMonths() {
             onValue(ref(db, `artifacts/${appId}/public/data/monthly_lessons`), (snap) => {
                 const data = snap.val();
                 const cont = document.getElementById('monthly-lessons-list');
                 if(!cont) return;
                 cont.innerHTML = '';
                 if(data) {
+                    const months = {};
                     Object.keys(data).forEach(k => {
                         const lesson = data[k];
-                        // Handling Grade filtering
-                        const lessonGrade = lesson.grade ? lesson.grade.toString() : '';
-                        const studentGrade = currentUser && currentUser.grade ? currentUser.grade.toString() : '';
-                        
-                        if (currentUser && currentUser.classId !== "1" && studentGrade && lessonGrade && studentGrade !== lessonGrade) {
-                            return; 
-                        }
+                        const month = lesson.name || lesson.title || "Other";
+                        if(!months[month]) months[month] = [];
+                        months[month].push({ id: k, ...lesson });
+                    });
 
+                    Object.keys(months).forEach(monthName => {
                         cont.innerHTML += `
-                            <div class="glass-card p-8 shadow-sm flex flex-col justify-between border-b-8 border-indigo-500">
+                            <div onclick="window.showMonthLessons('${monthName}')" class="glass-card p-8 shadow-sm flex flex-col justify-between border-b-8 border-indigo-500 cursor-pointer hover:bg-indigo-50">
                                 <div>
-                                    <div class="flex justify-between items-start mb-2">
-                                        <h4 class="font-bold text-slate-900 text-lg">${lesson.name || lesson.title || 'Untitled'}</h4>
-                                        ${lessonGrade ? `<span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-1 rounded">Grade ${lessonGrade}</span>` : ''}
-                                    </div>
-                                    <p class="text-slate-500 text-sm mb-6 leading-relaxed">${lesson.description || lesson.desc || ''}</p>
+                                    <h4 class="font-bold text-slate-900 text-lg">${monthName}</h4>
+                                    <p class="text-slate-500 text-xs mt-2">${months[monthName].length} Lessons Available</p>
                                 </div>
-                                <button onclick="window.fetchLessons('${k}', '${lesson.name || lesson.title}')" class="w-full bg-indigo-600 text-white py-4 rounded-2xl text-sm font-bold shadow-lg flex items-center justify-center gap-2 hover:bg-indigo-700 transition">
-                                    <i class="fas fa-book-open"></i> පාඩම නරඹන්න
-                                </button>
+                                <div class="mt-4 text-indigo-600 font-bold text-sm">නරඹන්න <i class="fas fa-chevron-right ml-1"></i></div>
                             </div>`;
                     });
-                    if (cont.innerHTML === '') {
-                        cont.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400 font-medium italic">ඔබේ ශ්‍රේණියට අදාළ පාඩම් කිසිවක් දැනට නොමැත.</div>';
-                    }
-                } else {
-                    cont.innerHTML = '<div class="col-span-full text-center py-10 text-slate-400 font-medium italic">තවම පාඩම් එක් කර නොමැත.</div>';
                 }
             });
         }
+
+        window.showMonthLessons = (monthName) => {
+            get(ref(db, `artifacts/${appId}/public/data/monthly_lessons`)).then(snap => {
+                const data = snap.val();
+                const filtered = Object.values(data).filter(l => (l.name || l.title) === monthName);
+                
+                mainContent.classList.add('hidden');
+                document.getElementById('lessons-page-view').classList.remove('hidden');
+                document.getElementById('selected-pack-name').innerText = monthName;
+                const grid = document.getElementById('lessons-grid');
+                grid.innerHTML = '';
+
+                filtered.forEach(l => {
+                    grid.innerHTML += `
+                        <div class="glass-card p-6 md:p-10 shadow-lg">
+                            <h4 class="font-bold text-slate-900 mb-6">${l.description || l.desc || 'Lesson Video'}</h4>
+                            ${generateSecurePlayer(l.youtubeUrl || l.videoUrl || l.url)}
+                        </div>`;
+                });
+            });
+        };
+
+        window.closeLessons = () => { document.getElementById('lessons-page-view').classList.add('hidden'); mainContent.classList.remove('hidden'); };
 
         function fetchStudyPacks() {
             onValue(ref(db, `artifacts/${appId}/public/data/study_packs`), (snap) => {
                 const data = snap.val();
                 const cont = document.getElementById('student-packs-list');
-                if(!cont) return;
+                if(!cont || !data) return;
                 cont.innerHTML = '';
-                if(data) {
-                    Object.keys(data).forEach(k => {
-                        const isUnlocked = currentUser && currentUser.unlockedPacks && currentUser.unlockedPacks[k];
-                        const isRequested = currentUser && currentUser.requests && currentUser.requests[k];
+                Object.keys(data).forEach(k => {
+                    const isUnlocked = currentUser?.unlockedPacks?.[k];
+                    cont.innerHTML += `
+                        <div class="glass-card p-8 shadow-sm border-b-8 ${isUnlocked ? 'border-green-500' : 'border-blue-600'}">
+                            <h4 class="font-black text-slate-900 text-lg mb-3">${data[k].name || data[k].title}</h4>
+                            <p class="text-blue-700 font-black text-2xl mb-8">LKR ${data[k].price || '0'}</p>
+                            <button onclick="window.fetchLessons('${k}', '${data[k].name}')" class="w-full vibrant-btn text-white py-4 rounded-2xl text-sm font-bold">නරඹන්න</button>
+                        </div>`;
+                });
+            });
+        }
 
-                        let btnHtml = '';
-                        if(isUnlocked || (currentUser && currentUser.classId === "1")) {
-                            btnHtml = `<button onclick="window.fetchLessons('${k}', '${data[k].name || data[k].title}')" class="w-full vibrant-btn text-white py-4 rounded-2xl text-sm font-bold shadow-xl flex items-center justify-center gap-2"><i class="fas fa-play-circle"></i> වීඩියෝ නරඹන්න</button>`;
-                        } else if(isRequested) {
-                            btnHtml = `<button disabled class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 cursor-not-allowed"><i class="fas fa-hourglass-half"></i> අනුමැතිය ලැබෙන තෙක්...</button>`;
-                        } else {
-                            btnHtml = `<button onclick="window.requestPack('${k}', '${data[k].name || data[k].title}')" class="w-full bg-slate-900 text-white py-4 rounded-2xl text-sm font-bold shadow-xl flex items-center justify-center gap-2 hover:bg-slate-800 transition"><i class="fas fa-lock"></i> Request Access</button>`;
-                        }
+        window.fetchLessons = (id, name) => {
+            mainContent.classList.add('hidden'); document.getElementById('lessons-page-view').classList.remove('hidden');
+            document.getElementById('selected-pack-name').innerText = name;
+            onValue(ref(db, `artifacts/${appId}/public/data/lessons/${id}`), (snap) => {
+                const data = snap.val(); const grid = document.getElementById('lessons-grid'); grid.innerHTML = '';
+                if(data) Object.values(data).forEach(l => {
+                    grid.innerHTML += `<div class="glass-card p-6 md:p-10 shadow-lg"><h4 class="font-bold text-slate-900 mb-6">${l.name || l.title}</h4>${generateSecurePlayer(l.url || l.videoUrl)}</div>`;
+                });
+            });
+        };
 
-                        cont.innerHTML += `
-                            <div class="glass-card p-8 shadow-sm flex flex-col justify-between border-b-8 ${isUnlocked ? 'border-green-500' : 'border-blue-600'}">
-                                <div>
-                                    <h4 class="font-black text-slate-900 text-lg mb-3 tracking-tight">${data[k].name || data[k].title}</h4>
-                                    <p class="text-blue-700 font-black text-2xl mb-8">LKR ${data[k].price || '0'}</p>
-                                </div>
-                                ${btnHtml}
-                            </div>`;
-                    });
-                }
+        function fetchOnlineClasses() {
+            onValue(ref(db, `artifacts/${appId}/public/data/online_classes`), (snap) => {
+                const data = snap.val(); const cont = document.getElementById('online-classes-list'); if(!cont) return;
+                cont.innerHTML = '';
+                if(data) Object.keys(data).forEach(k => {
+                    cont.innerHTML += `<div class="glass-card p-8 border-l-8 border-red-500"><h4 class="font-bold text-lg">${data[k].name}</h4><a href="${data[k].link}" target="_blank" class="block mt-4 bg-red-600 text-white py-3 rounded-xl text-center text-sm font-bold">සම්බන්ධ වන්න</a></div>`;
+                });
             });
         }
     </script>
